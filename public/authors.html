@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance </a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1>Authors List</h1>
+                <ul id="showBlock">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        const Http = new XMLHttpRequest();
+        const url = 'http://localhost:3000/catalog/authors';
+        Http.open("GET", url);
+        //发起这个请求
+        Http.send();
+        Http.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                console.log(Http.responseText);
+                const chunks = JSON.parse(Http.responseText);
+                // console.log(chunks);
+                // var counts = [chunks.book_count, chunks.book_instance, chunks.book_instance_available, chunks.author, chunks.genre];
+                // var name = ["book", "book_instance", "book_instance_available", "author", "genre"];
+                for (let i = 0; i < chunks.author_list.length; i++) {
+                    // console.log(chunks.genre_list[i]);
+                    const li = document.createElement("li");
+                    const a = document.createElement("a");
+                    a.setAttribute("href", "http://localhost:3000/home/author/" + chunks.author_list[i]._id);
+                    li.appendChild(a);
+                    a.innerHTML = chunks.author_list[i].family_name + chunks.author_list[i].first_name;
+                    var birth_date;
+                    var death_date;
+                    if (chunks.author_list[i].date_of_birth == undefined) {
+                        birth_date = "无";
+                    }
+                    else {
+                        birth_date = chunks.author_list[i].date_of_birth;
+                        birth_date = birth_date.substring(0, 10);
+                    }
+                    if (chunks.author_list[i].date_of_death == undefined) {
+                        death_date = "无";
+                    }
+                    else {
+                        death_date = chunks.author_list[i].date_of_death;
+                        death_date = death_date.substring(0, 10);
+                    }
+                    
+                    li.innerHTML += "(" + birth_date + "  ----  " + death_date + ")";
+                    document.getElementById("showBlock").appendChild(li);
+                }
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

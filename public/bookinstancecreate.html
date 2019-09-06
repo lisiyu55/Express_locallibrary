@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1>Create Bookinstance</h1>
+                <form method="POST" action="" id="operation">
+                    <div class="form-group">
+                        <label for="book">Book:</label>
+                        <select class="form-control" id="book" type="text" placeholder="Foundation etc."
+                            name="book" required="true">
+                        </select>
+                        <label for="imprint">Imprint:</label>
+                        <input class="form-control" id="imprint" type="text" placeholder="海南出版社2017年版 etc."
+                            name="imprint" required="true">
+                        <label for="due_back">Date back</label>
+                        <input class="form-control" id="due_back" type="text" placeholder="1922-02-21 etc."
+                            name="due_back" required="true">
+                        <label for="status">Status:</label>
+                        <select class="form-control" id="status" type="text" placeholder="馆藏维护 etc."
+                            name="status" required="true">
+                            <option value="馆藏维护">馆藏维护</option>
+                            <option value="已借出">已借出</option>
+                            <option value="可供借阅">可供借阅</option>
+                            <option value="保留">保留</option>
+                        </select>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const HTTP = new XMLHttpRequest();
+        var url = "http://localhost:3000/catalog/bookinstance/create";
+        HTTP.open("GET", url);
+        HTTP.send();
+        HTTP.onreadystatechange = function(){
+            if(this.readyState === 4 && this.status === 200){
+                console.log(HTTP.responseText);
+                var res = JSON.parse(HTTP.responseText);
+                var chunks = res.books;
+                console.log(chunks);
+                for(let i = 0; i < chunks.length; i++){
+                    var bookOption = document.createElement("option");
+                    bookOption.value = chunks[i]._id;
+                    bookOption.innerHTML = chunks[i].title;
+                    document.getElementById("book").appendChild(bookOption);
+                }
+            }
+        }
+
+
+
+        url = window.location.href.replace("home", "catalog");
+        document.getElementById("operation").action = url;
+        var form = document.getElementById("operation");
+        var operationObj = $('#operation');
+        operationObj.ajaxForm({
+            url: operationObj.attr('action'),
+            dataType: 'json',
+            success: function (response) {
+                console.log(response);
+
+                if(response.flag){
+                    window.location.href = "http://localhost:3000/home/bookinstance/" + response.bookinstance._id;
+                }
+                else{
+                    console.log(reponse.error);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

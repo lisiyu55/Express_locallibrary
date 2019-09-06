@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- <script src="/javascripts/jquery.js"></script> -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1>Update Bookinstance</h1>
+                <form method="POST" action="" id="operation">
+                    <div class="form-group">
+                        <label for="book">Book:</label>
+                        <select class="form-control" id="book" type="text" name="book" required="true"></select>
+                        <label for="imprint">Imprint:</label>
+                        <input class="form-control" id="imprint" type="text" name="imprint" required="true">
+                        <label for="due_back">Date back</label>
+                        <input class="form-control" id="due_back" type="text" name="due_back" required="true">
+                        <label for="status">Status:</label>
+                        <select class="form-control" id="status" type="text" name="status" required="true">
+                            <option value="馆藏维护">馆藏维护</option>
+                            <option value="已借出">已借出</option>
+                            <option value="可供借阅">可供借阅</option>
+                            <option value="保留">保留</option>
+                        </select>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        const Http = new XMLHttpRequest();
+        var id = window.location.href.substring(window.location.href.indexOf('bookinstance') + 13);
+        const url = window.location.href.replace("home", "catalog");
+        Http.open("GET", url);
+        //发起这个请求
+        Http.send();
+        Http.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                console.log(Http.responseText);
+                var res = JSON.parse(Http.responseText);
+                console.log(res);
+                var bi = res.bookinstance.book._id;
+                for (let i = 0; i < res.books.length; i++) {
+                    var bookOption = document.createElement("option");
+                    bookOption.value = res.books[i]._id;
+                    if (bookOption.value == bi) {
+                        bookOption.setAttribute("selected", "selected");
+                    }
+                    // bookOption.setAttribute("selected","false");
+                    bookOption.innerHTML = res.books[i].title;
+                    document.getElementById("book").appendChild(bookOption);
+                }
+                document.getElementById("imprint").value = res.bookinstance.imprint;
+                document.getElementById("due_back").value = res.bookinstance.due_back.substring(0, 10);
+                var statusOption = document.getElementById("status").getElementsByTagName("option");
+                for (let i = 0; i < statusOption.length; i++) {
+                    if (statusOption[i].innerHTML == res.bookinstance.status) {
+                        statusOption[i].setAttribute("selected", "selected");
+                    }
+                }
+
+            }
+        }
+
+        document.getElementById("operation").action = url;
+        var form = document.getElementById("operation");
+        // var btn = document.getElementById("delete");
+        var operationObj = $('#operation');
+        operationObj.ajaxForm({
+            url: operationObj.attr('action'),
+            dataType: 'json',
+            success: function (response) {
+                // window.location.href = response.url;
+                // window.location.href = window.location.href.replace("genres", "genre").replace("/update", "");
+                if(response.flag){
+                    window.location.href = window.location.href.replace("/update", "");
+                }
+                else{
+                    console.log(response.error);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

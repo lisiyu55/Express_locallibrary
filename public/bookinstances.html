@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance </a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1>Bookinstances List</h1>
+                <ul id="showBlock">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        const Http = new XMLHttpRequest();
+        const url = 'http://localhost:3000/catalog/bookinstances';
+        Http.open("GET", url);
+        //发起这个请求
+        Http.send();
+        Http.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                // console.log(Http.responseText);
+                const chunks = JSON.parse(Http.responseText);
+                console.log(chunks);
+                var bi = chunks.bookinstance_list;
+                for (let i = 0; i < bi.length; i++) {
+                    console.log(bi[i]);
+                    const bookinstance = document.createElement("li");
+                    const title_imprint = document.createElement("a");
+                    title_imprint.setAttribute("href", "http://localhost:3000/home/bookinstance/" + bi[i]._id);
+                    bookinstance.appendChild(title_imprint);
+                    title_imprint.innerHTML = bi[i].book.title + "   " + bi[i].imprint;
+                    bookinstance.innerHTML += "--" + bi[i].status + "  (" + bi[i].due_back.substring(0, 10) + ")";
+                    document.getElementById("showBlock").appendChild(bookinstance);
+                }
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

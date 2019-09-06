@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- <script src="/javascripts/jquery.js"></script> -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance </a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1 id="title">Book Title: </h1>
+                <div id="show-block">
+                    <div>
+                        <strong>Author:&nbsp;&nbsp;&nbsp;</strong>
+                        <a id="author"></a>
+                    </div>
+                    <div>
+                        <p id="summary"><strong>Summary:&nbsp;&nbsp;&nbsp;</strong></p>
+                    </div>
+                    <div>
+                        <p id="isbn"><strong>ISBN:&nbsp;&nbsp;&nbsp;</strong></p>
+                    </div>
+                    <div>
+                        <p id="genre"><strong>Genres:&nbsp;&nbsp;&nbsp;</strong></p>
+                    </div>
+
+                </div>
+                <hr>
+                <div id="copies">
+
+                </div>
+
+                <form method="POST" action="" id="operation" target="myiframe">
+                    <button type="submit" id="delete">Delete book</button>
+
+                </form>
+                <button id="update">Update book</button>
+                <!-- <iframe id="myiframe" name="myiframe" src="" style="display: none"></iframe> -->
+
+            </div>
+        </div>
+    </div>
+    <script>
+        const Http = new XMLHttpRequest();
+        var id = window.location.href.substring(window.location.href.indexOf('book') + 5);
+        const url = 'http://localhost:3000/catalog/book/' + id;
+        Http.open("GET", url);
+        //发起这个请求
+        Http.send();
+        // console.log(this.readyState);
+        Http.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var res = JSON.parse(Http.responseText);
+                console.log(res);
+                document.getElementById("title").innerHTML += res.book.title;
+                var chunks = res.book;
+
+                var author = document.getElementById("author");
+                author.innerHTML = chunks.author.family_name + chunks.author.first_name;
+                author.setAttribute("href", "http://localhost:3000/home/author/" + chunks.author._id);
+
+                var summary = document.getElementById("summary");
+                summary.innerHTML += chunks.summary;
+
+                var isbn = document.getElementById("isbn");
+                isbn.innerHTML += chunks.isbn;
+
+                var genres = document.getElementById("genre");
+                for (let i = 0; i < chunks.genre.length; i++) {
+                    const genre = document.createElement("a");
+                    genre.setAttribute("href", "http://localhost:3000/home/genre/" + chunks.genre[i]._id);
+                    genre.innerHTML += chunks.genre[i].name;
+                    genres.appendChild(genre);
+                }
+
+                var copies = document.getElementById("copies");
+                var bookinstances = res.book_instances;
+                for (let i = 0; i < bookinstances.length; i++) {
+                    var hr = document.createElement("hr");
+
+                    var biContent = document.createElement("div");
+                    var status = document.createElement("p");
+                    var imprint = document.createElement("p");
+                    var dueback = document.createElement("p");
+                    var id = document.createElement("a");
+                    status.innerHTML = "<strong>Status:</strong>" + bookinstances[i].status;
+                    imprint.innerHTML = "<strong>Imprint:</strong>" + bookinstances[i].imprint;
+                    dueback.innerHTML = "<strong>Due_back:</strong>" + bookinstances[i].due_back.substring(0, 10);
+                    id.innerHTML = "<strong>Id:</strong>" + bookinstances[i]._id;
+                    id.setAttribute("href", window.location.href.substring(0, window.location.href.indexOf("book")) + "bookinstance/" + bookinstances[i]._id);
+                    biContent.appendChild(status);
+                    biContent.appendChild(imprint);
+                    biContent.appendChild(dueback);
+                    biContent.appendChild(id);
+
+                    document.getElementById("copies").appendChild(hr);
+                    document.getElementById("copies").appendChild(biContent);
+
+                }
+
+                var url = window.location.href.replace("home", "catalog") + "/delete";
+                document.getElementById("operation").action = url;
+
+                // var iFrame = document.getElementById("myiframe");
+                var form = document.getElementById("operation");
+                // var btn = document.getElementById("delete");
+                $('#operation').ajaxForm({
+                    url: $('#operation').attr('action'),
+                    dataType: 'json',
+                    success: function (response) {
+                        // alert("The server says: " + response);
+                        console.log(response);
+                        // var res = JSON.parse(response);
+                        if (response.flag) {
+                            window.location.href = window.location.href.substring(0, window.location.href.indexOf("book")) + "books";
+                        }
+                        else {
+                            alert("You should delete all the bookinstances belonging with this book!");
+                        }
+                    }
+                });
+                document.getElementById("update").onclick = function () {
+                    window.location.href = window.location.href + "/update";
+                }
+
+
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

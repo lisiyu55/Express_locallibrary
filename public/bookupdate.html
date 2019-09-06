@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- <script src="/javascripts/jquery.js"></script> -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1>Update Book</h1>
+                <form method="POST" action="" id="operation">
+                    <div class="form-group">
+                        <label for="title">Title:</label>
+                        <input class="form-control" id="title" type="text" placeholder="Name of book" name="title"
+                            required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Author:</label>
+                        <select class="form-control" id="author" type="text" name="author" required="true">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="summary">Summary:</label>
+                        <input class="form-control" id="summary" type="textarea" placeholder="Summary" name="summary"
+                            required="true">
+                    </div>
+                    <div class="form-group">
+                        <label for="isbn">ISBN:</label>
+                        <input class="form-control" id="isbn" type="text" placeholder="ISBN13" name="isbn"
+                            required="true">
+                    </div>
+                    <div class="form-group">
+                        <lable for="genre">Genre:</lable>
+                        <div id="genrelist">
+
+                        </div>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        var HTTP1 = new XMLHttpRequest();
+        var id = window.location.href.substring(window.location.href.indexOf('book') + 5);
+        var url1 = "http://localhost:3000/catalog/book/" + id;
+        HTTP1.open("GET", url1);
+        HTTP1.send();
+        HTTP1.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                // console.log(HTTP.responseText);
+                var res = JSON.parse(HTTP1.responseText);
+                var authors = res.authors;
+                console.log(res);
+                var chunks = res.genres;
+                var genrelist = document.getElementById("genrelist");
+                for (let i = 0; i < chunks.length; i++) {
+                    var inputbox = document.createElement("input");
+                    var label = document.createElement("label");
+                    inputbox.setAttribute("type", "checkbox");
+                    inputbox.setAttribute("name", "genre");
+                    inputbox.setAttribute("id", chunks[i]._id);
+                    inputbox.setAttribute("value", chunks[i]._id);
+                    label.setAttribute("for", chunks[i]._id);
+                    label.innerHTML = chunks[i].name;
+                    document.getElementById("genrelist").appendChild(inputbox);
+                    document.getElementById("genrelist").appendChild(label);
+
+                }
+                for (let i = 0; i < authors.length; i++) {
+                    var authorOption = document.createElement("option");
+                    authorOption.value = authors[i]._id;
+                    authorOption.innerHTML = authors[i].family_name + authors[i].first_name;
+                    if (authorOption.value == res.book.author._id) {
+                        authorOption.setAttribute("selected", "selected");
+                    }
+                    document.getElementById("author").appendChild(authorOption);
+                }
+
+                var inputboxes = document.getElementById("genrelist").getElementsByTagName("input");
+                console.log(inputboxes.length);
+                console.log(chunks);
+                console.log(res.book);
+                for (let j = 0; j < inputboxes.length; j++) {
+                    for (let i = 0; i < res.book.genre.length; i++) {
+                        // console.log(inputboxes[j].id );
+                        // console.log(chunks[i]._id);
+                        if (inputboxes[j].value == res.book.genre[i]._id) {
+                            inputboxes[j].setAttribute("checked", "checked");
+                        }
+                    }
+                }
+                document.getElementById("title").value = res.book.title;
+                document.getElementById("summary").value = res.book.summary;
+                document.getElementById("isbn").value = res.book.isbn;
+            }
+        }
+
+        url = window.location.href.replace("home", "catalog");
+        document.getElementById("operation").action = url;
+        var form = document.getElementById("operation");
+        var operationObj = $('#operation');
+        operationObj.ajaxForm({
+            url: operationObj.attr('action'),
+            dataType: 'json',
+            success: function (response) {
+                console.log(response);
+
+                if (response.flag) {
+                    window.location.href = "http://localhost:3000/home/book/" + response.book._id;
+                }
+                else {
+                    console.log(reponse.error);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

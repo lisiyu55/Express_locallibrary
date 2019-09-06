@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1>Create Author</h1>
+                <form method="POST" action="" id="operation">
+                    <div class="form-group">
+                        <label for="first_name">first_name</label>
+                        <input class="form-control" id="first_name" type="text" placeholder="si etc."
+                            name="first_name" required="true">
+                        <label for="family_name">family_name</label>
+                        <input class="form-control" id="family_name" type="text" placeholder="zhao etc."
+                            name="family_name" required="true">
+                        <label for="date_of_birth">date_of_birth</label>
+                        <input class="form-control" id="date_of_birth" type="text" placeholder="1922-02-21 etc."
+                            name="date_of_birth" required="true">
+                        <label for="date_of_death">date_of_death</label>
+                        <input class="form-control" id="date_of_death" type="text" placeholder="1998-07-22 etc."
+                            name="date_of_death" required="true">
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const url = window.location.href.replace("home", "catalog");
+        document.getElementById("operation").action = url;
+        var form = document.getElementById("operation");
+        var operationObj = $('#operation');
+        operationObj.ajaxForm({
+            url: operationObj.attr('action'),
+            dataType: 'json',
+            success: function (response) {
+                console.log(response);
+                window.location.href = "http://localhost:3000/home/author/" + response.author._id;
+            }
+        });
+    </script>
+
+</body>
+
+</html>

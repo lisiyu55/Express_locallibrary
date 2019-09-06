@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- <script src="/javascripts/jquery.js"></script> -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance </a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1 id="title">Author Detail:  </h1>
+                <h2>books</h2>
+                <div id="show-block">
+
+                </div>
+                <hr>
+
+                <form method="POST" action="" id="operation" target="myiframe">
+                    <button type="submit" id="delete">Delete author</button>
+                    
+                </form>
+                <button id="update">Update author</button>
+                <!-- <iframe id="myiframe" name="myiframe" src="" style="display: none"></iframe> -->
+
+            </div>
+        </div>
+    </div>
+    <script>
+        const Http = new XMLHttpRequest();
+        var id = window.location.href.substring(window.location.href.indexOf('author') + 7);
+        const url = 'http://localhost:3000/catalog/author/' + id;
+        Http.open("GET", url);
+        //发起这个请求
+        Http.send();
+        // console.log(this.readyState);
+        Http.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var res = JSON.parse(Http.responseText);
+                // console.log(res);
+                document.getElementById("title").innerHTML += res.author.family_name + res.author.first_name;
+                var chunks = res.authors_books;
+                // console.log(chunks.length);
+                if (chunks.length == 0) {
+                    var prompt = document.createElement("p");
+                    prompt.innerHTML = "This author has no books!";
+                    document.getElementById("show-block").appendChild(prompt);
+                }
+                else {
+                    for (var i = 0; i < chunks.length; i++) {
+                        var book = chunks[i];
+                        var bookTitle = document.createElement("h3");
+                        // bookTitle.setAttribute("id", "bookname" + i);
+                        var bookSummary = document.createElement("p");
+                        var a = document.createElement("a");
+                        a.setAttribute("href", "http://localhost:3000/home/book/" + book._id);
+                        bookSummary.innerHTML = book.summary;
+                        a.innerHTML = book.title;
+                        bookTitle.appendChild(a);
+                        document.getElementById("show-block").appendChild(bookTitle);
+                        document.getElementById("show-block").appendChild(bookSummary);
+                    }
+                }
+                var url = window.location.href.replace("home", "catalog") + "/delete";
+                document.getElementById("operation").action = url;
+
+                // var iFrame = document.getElementById("myiframe");
+                var form = document.getElementById("operation");
+                // var btn = document.getElementById("delete");
+                $('#operation').ajaxForm({
+                    url: $('#operation').attr('action'),
+                    dataType: 'json',
+                    success: function (response) {
+                        // alert("The server says: " + response);
+                        console.log(response);
+                        // var res = JSON.parse(response);
+                        if (response.flag) {
+                            window.location.href = window.location.href.substring(0, window.location.href.indexOf("author")) + "authors";
+                        }
+                        else {
+                            alert("You should delete all the books belonging with this author!");
+                        }
+                    }
+                });
+                document.getElementById("update").onclick = function(){
+                    window.location.href = window.location.href + "/update";
+                }
+                
+
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

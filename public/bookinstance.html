@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Local Library Home</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- <script src="/javascripts/jquery.js"></script> -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <ul class="sidebar-nav">
+                    <li> <a href="/home">Home</a></li>
+                    <li> <a href="/home/books">All books</a></li>
+                    <li> <a href="/home/authors">All authors</a></li>
+                    <li> <a href="/home/genres">All genres</a></li>
+                    <li> <a href="/home/bookinstances">All book-instances</a></li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li> <a href="/home/author/create">Create new author</a></li>
+                    <li> <a href="/home/genre/create">Create new genre</a></li>
+                    <li> <a href="/home/book/create">Create new book</a></li>
+                    <li> <a href="/home/bookinstance/create">Create new book instance </a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9">
+                <h1 id="title">Bookinstance</h1>
+                <div id="show-block">
+                    <div>
+                        <strong>Title:&nbsp;&nbsp;&nbsp;</strong>
+                        <a id="bititle"></a>
+                    </div>
+                    <div>
+                        <p id="imprint"><strong>Imprint:&nbsp;&nbsp;&nbsp;</strong></p>
+                    </div>
+                    <div>
+                        <p id="status"><strong>Status:&nbsp;&nbsp;&nbsp;</strong></p>
+                    </div>
+                    <div>
+                        <p id="due_back"><strong>Due_back:&nbsp;&nbsp;&nbsp;</strong></p>
+                    </div>
+
+                </div>
+                <hr>
+
+                <form method="POST" action="" id="operation" target="myiframe">
+                    <button type="submit" id="delete">Delete bookinstance</button>
+                </form>
+                <button id="update">Update bookinstance</button>
+                <!-- <iframe id="myiframe" name="myiframe" src="" style="display: none"></iframe> -->
+
+            </div>
+        </div>
+    </div>
+    <script>
+        const Http = new XMLHttpRequest();
+        var id = window.location.href.substring(window.location.href.indexOf('bookinstance') + 13);
+        const url = 'http://localhost:3000/catalog/bookinstance/' + id;
+        Http.open("GET", url);
+        //发起这个请求
+        Http.send();
+        // console.log(this.readyState);
+        Http.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var res = JSON.parse(Http.responseText);
+                console.log(res);
+                var bi = res.bookinstance;
+                var biTitle = document.getElementById("bititle");
+                biTitle.innerHTML += bi.book.title;
+                biTitle.setAttribute("href", "http://localhost:3000/home/bookinstance/" + bi._id);
+
+
+                var imprint = document.getElementById("imprint");
+                imprint.innerHTML += bi.imprint;
+
+                var status = document.getElementById("status");
+                status.innerHTML += bi.status;
+
+                var due_back = document.getElementById("due_back");
+                due_back.innerHTML += bi.due_back.substring(0, 10);
+
+                var url = window.location.href.replace("home", "catalog") + "/delete";
+                document.getElementById("operation").action = url;
+
+                // var iFrame = document.getElementById("myiframe");
+                var form = document.getElementById("operation");
+                // var btn = document.getElementById("delete");
+                $('#operation').ajaxForm({
+                    url: $('#operation').attr('action'),
+                    dataType: 'json',
+                    success: function (response) {
+                        // alert("The server says: " + response);
+                        console.log(response);
+                        // var res = JSON.parse(response);
+                        if (response.flag) {
+                            window.location.href = window.location.href.substring(0, window.location.href.indexOf("bookinstance")) + "bookinstances";
+                        }
+                        else {
+                            alert(response.error);
+                        }
+                    }
+                });
+                document.getElementById("update").onclick = function () {
+                    window.location.href = window.location.href + "/update";
+                }
+
+
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

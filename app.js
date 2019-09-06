@@ -50,15 +50,79 @@ app.use('/users', usersRouter);
 app.use('/catalog', catalogRouter);  // 将 catalog 路由添加进中间件链
 
 
+
+app.get('/home', function (req, res) {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/home/genres', function (req, res) {
+  res.sendFile(__dirname + '/public/genres.html');
+});
+
+app.get('/home/genre/create', function (req, res) {
+  res.sendFile(__dirname + '/public/genrecreate.html');
+});
+
+app.get('/home/genre/:id', function (req, res) {
+  // var url = req.url;
+  // id = url.substring(url.indexOf('genre') + 5);
+  // var id = req.params.id;
+  res.sendFile(__dirname + '/public/genre.html');
+});
+
+app.get('/home/genre/:id/update', function (req, res) {
+  res.sendFile(__dirname + '/public/genreupdate.html');
+});
+
+app.get('/home/authors', function (req, res) {
+  res.sendFile(__dirname + '/public/authors.html');
+});
+app.get('/home/author/create', function (req, res) {
+  res.sendFile(__dirname + '/public/authorcreate.html');
+});
+app.get('/home/author/:id', function (req, res) {
+  res.sendFile(__dirname + '/public/author.html');
+});
+
+app.get('/home/author/:id/update', function (req, res) {
+  res.sendFile(__dirname + '/public/authorupdate.html');
+});
+
+app.get('/home/books', function (req, res) {
+  res.sendFile(__dirname + '/public/books.html');
+});
+app.get('/home/book/create', function (req, res) {
+  res.sendFile(__dirname + '/public/bookcreate.html');
+});
+app.get('/home/book/:id', function (req, res) {
+  res.sendFile(__dirname + '/public/book.html');
+});
+
+app.get('/home/book/:id/update', function (req, res) {
+  res.sendFile(__dirname + '/public/bookupdate.html');
+});
+
+app.get('/home/bookinstances', function (req, res) {
+  res.sendFile(__dirname + '/public/bookinstances.html');
+});
+app.get('/home/bookinstance/create', function (req, res) {
+  res.sendFile(__dirname + '/public/bookinstancecreate.html');
+});
+app.get('/home/bookinstance/:id', function (req, res) {
+  res.sendFile(__dirname + '/public/bookinstance.html');
+});
+
+app.get('/home/bookinstance/:id/update', function (req, res) {
+  res.sendFile(__dirname + '/public/bookinstanceupdate.html');
+});
+
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
-
-
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
